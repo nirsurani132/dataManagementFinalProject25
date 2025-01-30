@@ -41,7 +41,6 @@ class BasicDataSet:
             pattern.set_coverage(self.size)
             return self.size 
         
-
         # Get indexes of the attributes that are not 'x'
         non_x_indexes = [i for i in range(len(pattern.data)) if pattern.data[i] != 'x']
         projected_data = self.data.iloc[:, non_x_indexes]
