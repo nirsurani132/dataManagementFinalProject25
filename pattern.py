@@ -48,12 +48,11 @@ class Pattern:
         return True
 
     @staticmethod
-    def get_root_pattern(dimension: int, coverage_percentage_of_each_value_in_each_attr: Optional[List[List[float]]] = None) -> 'Pattern':
+    def get_root_pattern(dimension: int) -> 'Pattern':
         """
         Returns the root pattern (all characters are 'x').
 
         param dimension: Dimension of the pattern.
-        param coverage_percentage_of_each_value_in_each_attr: Coverage percentage info (optional).
         return: A root Pattern object.
         """
         root_data = ['x'] * dimension
@@ -85,7 +84,6 @@ class Pattern:
         """
         Generates parent patterns by replacing each non-'x' character with 'x'.
 
-        param coverage_percentage_of_each_value_in_each_attr: Coverage percentage info (optional).
         return: A dictionary mapping replaced position to the parent Pattern.
         """
         parents = {}
