@@ -36,7 +36,7 @@ class BasicDataSet:
 
 
     def checkCoverage(self,pattern:Pattern) -> float:
-        # if the pattern is the root pattern, then it covers the whole dataset
+        # If the pattern is the root pattern, then it covers the whole dataset
         if(pattern == pattern.get_root_pattern(self.dim)):
             pattern.set_coverage(self.size)
             return self.size 
@@ -46,6 +46,6 @@ class BasicDataSet:
         projected_data = self.data.iloc[:, non_x_indexes]
         projected_pattern = [pattern.data[i] for i in non_x_indexes]
 
-        # get number of rows in the projected data that match the pattern
+        # Get number of rows in the projected data that match the pattern
         pattern.set_coverage((projected_data == projected_pattern).all(axis=1).sum())
         return pattern.coverage

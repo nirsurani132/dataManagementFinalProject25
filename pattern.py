@@ -1,6 +1,11 @@
-from typing import List, Dict, Optional
+from typing import List, Optional, TYPE_CHECKING
 from copy import deepcopy
 from itertools import product
+
+# Solves circular import issue 
+if TYPE_CHECKING:
+    from basicDataSet import BasicDataSet
+
 
 class Pattern:
     """
