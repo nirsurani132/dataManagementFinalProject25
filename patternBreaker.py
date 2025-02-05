@@ -10,27 +10,27 @@ class PatternBreaker:
         self.threshold = threshold
 
     def find_max_uncovered_pattern_set(self, threshold) -> set[Pattern]:
-        mups = set()
+        mups = []
 
         # Create the root pattern
         root = Pattern.get_root_pattern(self.dataset.getDimension())
 
-        cur_pattern_set = {root}
-        prev_pattern_set = set()
-        next_pattern_set = set()
+        cur_pattern_level = [root] # List of MUPs candidates
+        prev_pattern_set = [] # List of MUPs candidates from the previous level - level i-1
+        next_pattern_set = [] # List of MUPs candidates for the next level - level i+1
 
         # Top-down traversal to find MUPS
-        while cur_pattern_set:
-            patterns_to_remove = set()
+        while cur_pattern_level:
+            patterns_to_remove = set() # Set optimize the removal of patterns from the current_set
 
-            for current_pattern in cur_pattern_set:
+            for current_pattern in cur_pattern_level:
                 # Generate parent patterns
                 parents_of_cur_pattern = current_pattern.gen_parents()
 
                 # Check if this pattern could still be a MUP
                 if_possibly_mup = True
                 for parent_pattern in parents_of_cur_pattern.values():
-                    # If any parent is in the MUPS set or not in prev_pattern_set, 
+                    # If any parent is in the MUPS set or not in prev_pattern_set(pruned), 
                     # then current_pattern can't be a MUP
                     if parent_pattern in mups or parent_pattern not in prev_pattern_set:
                         if_possibly_mup = False
@@ -42,23 +42,23 @@ class PatternBreaker:
 
                 # Check coverage threshold
                 if self.dataset.checkCoverage(current_pattern) < threshold:
-                    mups.add(current_pattern)
+                    mups.append(current_pattern)
                 else:
                     # Expand the pattern by replacing positions after the right-most deterministic index
                     right_most_det_idx = current_pattern.find_right_most_deterministic_index()
                     for i in range(right_most_det_idx + 1, current_pattern.get_dimension()):
                         for value_to_replace in self.dataset.getValueRange(i):
                             # Create a new pattern with the updated position
-                            next_pattern_set.add(
+                            next_pattern_set.append(
                                 Pattern(current_pattern.data, i, value_to_replace)
                             )
 
             # Remove patterns that cannot be MUPS
-            cur_pattern_set.difference_update(patterns_to_remove)
+            cur_pattern_level = [pattern for pattern in cur_pattern_level if pattern not in patterns_to_remove]
             # The current set becomes the 'previous' set in the next iteration
-            prev_pattern_set = set(cur_pattern_set)
+            prev_pattern_set = cur_pattern_level
             # Move all newly created patterns into the current set
-            cur_pattern_set = set(next_pattern_set)
-            next_pattern_set.clear()
+            cur_pattern_level = next_pattern_set
+            next_pattern_set = []
 
         return mups
