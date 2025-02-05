@@ -9,7 +9,7 @@ class PatternBreaker:
         self.dataset = BasicDataSet(dataset_path, interestedIndexes)
         self.threshold = threshold
 
-    def find_max_uncovered_pattern_set(self, threshold) -> set[Pattern]:
+    def find_max_uncovered_pattern_set(self, threshold) -> List[Pattern]:
         mups = []
 
         # Create the root pattern
@@ -29,7 +29,7 @@ class PatternBreaker:
 
                 # Check if this pattern could still be a MUP
                 if_possibly_mup = True
-                for parent_pattern in parents_of_cur_pattern.values():
+                for parent_pattern in parents_of_cur_pattern:
                     # If any parent is in the MUPS set or not in prev_pattern_set(pruned), 
                     # then current_pattern can't be a MUP
                     if parent_pattern in mups or parent_pattern not in prev_pattern_set:
@@ -45,13 +45,8 @@ class PatternBreaker:
                     mups.append(current_pattern)
                 else:
                     # Expand the pattern by replacing positions after the right-most deterministic index
-                    right_most_det_idx = current_pattern.find_right_most_deterministic_index()
-                    for i in range(right_most_det_idx + 1, current_pattern.get_dimension()):
-                        for value_to_replace in self.dataset.getValueRange(i):
-                            # Create a new pattern with the updated position
-                            next_pattern_set.append(
-                                Pattern(current_pattern.data, i, value_to_replace)
-                            )
+                    generated_children = current_pattern.gen_children(self.dataset,True) # Rule 1
+                    next_pattern_set.extend(generated_children)
 
             # Remove patterns that cannot be MUPS
             cur_pattern_level = [pattern for pattern in cur_pattern_level if pattern not in patterns_to_remove]

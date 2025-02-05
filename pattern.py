@@ -1,5 +1,6 @@
 from typing import List, Dict, Optional
 from copy import deepcopy
+from itertools import product
 
 class Pattern:
     """
@@ -80,21 +81,41 @@ class Pattern:
                 return idx
         return -1
 
-    def gen_parents(self) -> Dict[int, 'Pattern']:
+    def gen_parents(self) -> List['Pattern']:
         """
         Generates parent patterns by replacing each non-'x' character with 'x'.
 
-        return: A dictionary mapping replaced position to the parent Pattern.
+        return: A list of parent patterns.
         """
-        parents = {}
+        parents = []
         for i in range(self.get_dimension()):
             if self.data[i] != 'x':
-                    parents[i] = Pattern(self.data, i, 'x')
+                    parents.append(Pattern(self.data, i, 'x'))
         return parents
+    
+    
+    def gen_parents_rule2(self) -> List['Pattern']:
+        """
+        Generates the candidate nodes at level l(P) − 1
+        by replacing the deterministic elements with value 0
+        in the right-hand side of its right-most non-deterministic element with X
+        
+        return: A list of parent patterns according to rule 2
+        """
 
+        parents = []
+        right_most_non_det_idx = self.find_right_most_non_deterministic_index()
+        if right_most_non_det_idx == self.get_dimension() - 1:
+            return parents
+        for i in range(right_most_non_det_idx + 1, self.get_dimension()):
+            if self.data[i] == 0:
+                parents.append(Pattern(self.data, i, 'x'))
+        return parents
+    
+    
     def get_level(self) -> int:
         """
-        Returns the level of the pattern (number of deterministic elements).
+        return: The level of the pattern (number of deterministic elements).
         """
         return self.get_dimension() - self.data.count('x')
 
@@ -124,11 +145,66 @@ class Pattern:
         return f"{data_str} (cov:{self.coverage})"
 
 
+    def get_coverage(self) -> int:
+        """
+        Returns the coverage value of the pattern.
+        """
+        return self.coverage
+
     def set_coverage(self, coverage_value: int):
         """
         Sets the coverage value.
 
-        :param coverage_value: Coverage value to set.
+        param coverage_value: Coverage value to set.
         """
         self.coverage = coverage_value
+
+        
+    def gen_children(self,dataset:'BasicDataSet', rule1 = False) -> List['Pattern']:
+        """
+        Generates child patterns by replacing one non-deterministic character with a deterministic value.
+        rule1: if True, then the children are generated according to rule 1
+        ~~otherwise generate all children~~
+        
+        return: A list of child patterns.
+        """
+        children = []
+        begining_idx = self.find_right_most_deterministic_index() if rule1 else -1
+        for i in range(begining_idx + 1,self.get_dimension()):
+            if self.data[i] == 'x':
+                for value in dataset.getValueRange(i):
+                    children.append(Pattern(self.data, i, value))
+        return children
+    
+    def gen_children_rule2(self,dataset:'BasicDataSet') -> List['Pattern']:
+        """
+        Generates (Partial) list of children patterns at level l(P) + 1,
+        Those who create together disjoint partitions of the matches of P,
+        by replacing the right-most non-deterministic element with all possible values(See PatternCombiner alg)
+        
+        return: A (Partial) list of child patterns
+        """
+        children = []
+        right_most_non_det_idx = self.find_right_most_non_deterministic_index()
+        if right_most_non_det_idx == -1:
+            return children
+        for value in dataset.getValueRange(right_most_non_det_idx):
+            children.append(Pattern(self.data, right_most_non_det_idx, value))
+        return children
+
+
+    @staticmethod
+    def get_all_determinictic_patterns(dataset: 'BasicDataSet') -> List['Pattern']:
+        """
+        Generates all deterministic patterns from a given dataset
+
+        return: A list of all deterministic patterns.
+        """
+        attributes_lists = [dataset.getValueRange(0)] # Assuming there is at least one attribute
+        for column_idx in range(1, dataset.getDimension()):
+            attributes_lists.append(dataset.getValueRange(column_idx))
+        product_list = product(*attributes_lists)
+        return [Pattern(list(p)) for p in product_list]
+
+        
 
