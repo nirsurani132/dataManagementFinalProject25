@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Set
 from basicDataSet import BasicDataSet
 from pattern import Pattern
 
@@ -10,7 +10,7 @@ class PatternBreaker:
         self.threshold = threshold
 
     def find_max_uncovered_pattern_set(self, threshold) -> List[Pattern]:
-        mups = set()
+        mups: Set[Pattern] = set()
 
         # Create the root pattern
         root = Pattern.get_root_pattern(self.dataset.getDimension())
