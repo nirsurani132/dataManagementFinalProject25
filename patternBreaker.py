@@ -9,7 +9,7 @@ class PatternBreaker:
         self.dataset = BasicDataSet(dataset_path, interestedIndexes)
         self.threshold = threshold
 
-    def find_max_uncovered_pattern_set(self, threshold) -> List[Pattern]:
+    def find_max_uncovered_pattern_set(self) -> List[Pattern]:
         mups: Set[Pattern] = set()
 
         # Create the root pattern
@@ -41,7 +41,7 @@ class PatternBreaker:
                     continue
 
                 # Check coverage threshold
-                if self.dataset.checkCoverage(current_pattern) < threshold:
+                if self.dataset.checkCoverage(current_pattern) < self.threshold:
                     assert current_pattern not in mups  # Sanity (debug)
                     mups.add(current_pattern)
                 else:
