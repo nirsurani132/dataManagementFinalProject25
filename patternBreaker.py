@@ -16,12 +16,12 @@ class PatternBreaker:
         root = Pattern.get_root_pattern(self.dataset.getDimension())
 
         cur_pattern_level = [root] # List of MUPs candidates
-        prev_pattern_set = [] # List of MUPs candidates from the previous level - level i-1
+        prev_pattern_set = [root] # List of MUPs candidates from the previous level - level i-1
         next_pattern_set = [] # List of MUPs candidates for the next level - level i+1
 
         # Top-down traversal to find MUPS
         while cur_pattern_level:
-            patterns_to_remove = set() # Set optimize the removal of patterns from the current_set
+            patterns_to_remove = set() # Set to optimize the removal of patterns from the current_set
 
             for current_pattern in cur_pattern_level:
                 # Generate parent patterns
