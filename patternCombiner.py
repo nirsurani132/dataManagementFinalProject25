@@ -8,7 +8,7 @@ class PatternCombiner:
         self.dataset = BasicDataSet(dataset_path, interestedIndexes)
         self.threshold = threshold
 
-    def find_max_uncovered_pattern_set(self, threshold) -> List[Pattern]:
+    def find_max_uncovered_pattern_set(self) -> List[Pattern]:
         mups: Set[Pattern] = set()
         
         # Create new hash
@@ -19,7 +19,7 @@ class PatternCombiner:
         # Check coverage for each pattern
         for pattern in all_possible_deterministic_patterns:
             cnt = self.dataset.checkCoverage(pattern)
-            if cnt < threshold:
+            if cnt < self.threshold:
                 count[pattern] = cnt
         
         # Check whether count is empty, i.e. no pattern is below the threshold (fully covered dataset)
@@ -45,7 +45,7 @@ class PatternCombiner:
                         sum_coverage += count[child] if child in count else self.threshold 
                     parent_pattern.set_coverage(sum_coverage)
                     
-                    if sum_coverage < threshold:
+                    if sum_coverage < self.threshold:
                         nextCount[parent_pattern] = sum_coverage
                     
             # Iterate over all uncovered patterns in level l
