@@ -1,4 +1,4 @@
-from typing import List,Dict, Optional
+from typing import List, Dict, Optional, Set
 from basicDataSet import BasicDataSet
 from pattern import Pattern
 
@@ -9,7 +9,7 @@ class PatternCombiner:
         self.threshold = threshold
 
     def find_max_uncovered_pattern_set(self, threshold) -> List[Pattern]:
-        mups :List[Pattern] = []
+        mups: Set[Pattern] = set()
         
         # Create new hash
         count: Dict[Pattern, int] = {}
@@ -22,7 +22,7 @@ class PatternCombiner:
             if cnt < threshold:
                 count[pattern] = cnt
         
-        # Check whether count is empty, i.e. no pattern is below the threshold (covered dataset)
+        # Check whether count is empty, i.e. no pattern is below the threshold (fully covered dataset)
         if(len(count) == 0):
             return []
         
@@ -34,13 +34,14 @@ class PatternCombiner:
                 for parent_pattern in parents_of_cur_pattern:
                    
                     # Generate children that creates disjoint partitions of the matches of parent_pattern
-                    childrens = parent_pattern.gen_children_rule2(self.dataset)
+                    children = parent_pattern.gen_children_rule2(self.dataset)
                     
                     # Calculate the coverage of the parent pattern
                     # cov(parent) = sum(cov(child)), for example: cov(1xx) = cov(1x1) + cov(1x0)
                     sum_coverage = 0
-                    for child in childrens:
-                        # if one of the children is not in count, then it is covered (So we'll add the threshold)
+                    for child in children:
+                        # if one of the children is not in count, then it is
+                        # covered, so we'll add the threshold and be covered as well.
                         sum_coverage += count[child] if child in count else self.threshold 
                     parent_pattern.set_coverage(sum_coverage)
                     
@@ -48,19 +49,17 @@ class PatternCombiner:
                         nextCount[parent_pattern] = sum_coverage
                     
             # Iterate over all uncovered patterns in level l
-            for pattern in count.keys():  
+            for pattern in count.keys():
                 # If none of the parents of the pattern is in nextCount, then pattern is a MUP (since all of them are covered)
                 if len(list(filter(lambda x: x in nextCount, pattern.gen_parents()))) == 0:
-                    mups.append(pattern)
+                    assert pattern not in mups  # Sanity (debug)
+                    mups.add(pattern)
             
-            #check whether nextCount is empty, then break
+            # check whether nextCount is empty. If so, break.
             if(len(nextCount) == 0):
                 break
 
-            # Prepare for the next level(actually, level - 1)
+            # Prepare for the next level, which is level (`level` - 1).
             count = nextCount
         
         return mups
-
-
-        

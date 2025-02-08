@@ -45,7 +45,7 @@ class Pattern:
         return: True if the current pattern is an ancestor of the other pattern, False otherwise.
         """
         if self.get_dimension() != other.get_dimension():
-            return False
+            return False  # Should not happen
 
         for char_self, char_other in zip(self.data, other.data):
             if char_self != 'x' and char_self != char_other:
@@ -95,10 +95,9 @@ class Pattern:
         parents = []
         for i in range(self.get_dimension()):
             if self.data[i] != 'x':
-                    parents.append(Pattern(self.data, i, 'x'))
+                parents.append(Pattern(self.data, i, 'x'))
         return parents
-    
-    
+
     def gen_parents_rule2(self) -> List['Pattern']:
         """
         Generates the candidate nodes at level l(P) − 1
@@ -116,8 +115,8 @@ class Pattern:
             if self.data[i] == 0:
                 parents.append(Pattern(self.data, i, 'x'))
         return parents
-    
-    
+
+
     def get_level(self) -> int:
         """
         return: The level of the pattern (number of deterministic elements).
@@ -192,11 +191,10 @@ class Pattern:
         children = []
         right_most_non_det_idx = self.find_right_most_non_deterministic_index()
         if right_most_non_det_idx == -1:
-            return children
+            return children             # Should not be called on such patterns.
         for value in dataset.getValueRange(right_most_non_det_idx):
             children.append(Pattern(self.data, right_most_non_det_idx, value))
         return children
-
 
     @staticmethod
     def get_all_determinictic_patterns(dataset: 'BasicDataSet') -> List['Pattern']:
@@ -210,6 +208,3 @@ class Pattern:
             attributes_lists.append(dataset.getValueRange(column_idx))
         product_list = product(*attributes_lists)
         return [Pattern(list(p)) for p in product_list]
-
-        
-
