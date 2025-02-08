@@ -192,7 +192,7 @@ class Pattern:
         children = []
         right_most_non_det_idx = self.find_right_most_non_deterministic_index()
         if right_most_non_det_idx == -1:
-            return children
+            return children             # Should not be called on such patterns.
         for value in dataset.getValueRange(right_most_non_det_idx):
             children.append(Pattern(self.data, right_most_non_det_idx, value))
         return children
