@@ -19,6 +19,9 @@ class Debugger:
     def end(self):
         timeEnd = time.time()
         self.timeElapsed = timeEnd - self.timeBegin
+
+    def get_execution_time(self) -> float:
+        return self.timeElapsed
         
     def get_node_visited(self) -> int:
         return self.nodeVisited
