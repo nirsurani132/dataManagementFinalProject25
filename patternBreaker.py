@@ -9,8 +9,7 @@ class PatternBreaker:
         
         self.dataset = BasicDataSet(dataset_path, interestedIndexes)
         self.threshold = threshold
-        if debug:
-            self.debugger = Debugger()
+        self.debugger = Debugger() if debug else None
 
     def find_max_uncovered_pattern_set(self) -> List[Pattern]:
         if self.debugger:
@@ -30,8 +29,6 @@ class PatternBreaker:
             patterns_to_remove = set() # Set to optimize the removal of patterns from the current_set
 
             for current_pattern in cur_pattern_level:
-                if(current_pattern == Pattern([6,4,1,0])):
-                    print("Found")
                 # Generate parent patterns
                 parents_of_cur_pattern = current_pattern.gen_parents()
 
@@ -40,7 +37,6 @@ class PatternBreaker:
                 for parent_pattern in parents_of_cur_pattern:
                     # If any parent is in the MUPS set or not in prev_pattern_set(pruned), 
                     # then current_pattern can't be a MUP
-                    cov = self.dataset.checkCoverage(parent_pattern)
                     if parent_pattern in mups or parent_pattern not in prev_pattern_set:
                         if_possibly_mup = False
                         break
@@ -50,11 +46,13 @@ class PatternBreaker:
                     continue
 
                 # Check coverage threshold
-                self.debugger.increment_node_visited()
+                if self.debugger:
+                    self.debugger.increment_node_visited()
                 if self.dataset.checkCoverage(current_pattern) < self.threshold:
                     assert current_pattern not in mups  # Sanity (debug)
                     mups.add(current_pattern)
-                    self.debugger.increment_mups()
+                    if self.debugger:
+                        self.debugger.increment_mups()
                 else:
                     # Expand the pattern by replacing positions after the right-most deterministic index
                     generated_children = current_pattern.gen_children(self.dataset,True) # Rule 1
