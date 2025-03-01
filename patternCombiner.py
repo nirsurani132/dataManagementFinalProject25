@@ -36,8 +36,6 @@ class PatternCombiner:
         for level in range(self.dataset.getDimension()):
             nextCount: Dict[Pattern, int] = {}
             for pattern in count.keys():
-                if(pattern == Pattern([6,4,1,0])):
-                    print("Found")
                 # Generate parent patterns
                 parents_of_cur_pattern = pattern.gen_parents_rule2()
                 for parent_pattern in parents_of_cur_pattern:

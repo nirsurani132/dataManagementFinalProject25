@@ -30,8 +30,6 @@ class PatternBreaker:
             patterns_to_remove = set() # Set to optimize the removal of patterns from the current_set
 
             for current_pattern in cur_pattern_level:
-                if(current_pattern == Pattern([6,4,1,0])):
-                    print("Found")
                 # Generate parent patterns
                 parents_of_cur_pattern = current_pattern.gen_parents()
 
@@ -40,7 +38,6 @@ class PatternBreaker:
                 for parent_pattern in parents_of_cur_pattern:
                     # If any parent is in the MUPS set or not in prev_pattern_set(pruned), 
                     # then current_pattern can't be a MUP
-                    cov = self.dataset.checkCoverage(parent_pattern)
                     if parent_pattern in mups or parent_pattern not in prev_pattern_set:
                         if_possibly_mup = False
                         break
