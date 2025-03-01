@@ -7,8 +7,7 @@ class DeepDiver:
     def __init__(self, dataset_path: str, threshold: float, interestedIndexes: Optional[List[int]] = None, debug: Optional[bool] = False):
         self.dataset = BasicDataSet(dataset_path, interestedIndexes)
         self.threshold = threshold
-        if debug:
-            self.debugger = Debugger()
+        self.debugger = Debugger() if debug else None
 
     def find_max_uncovered_pattern_set(self) -> List[Pattern]:
         if self.debugger:
@@ -27,7 +26,8 @@ class DeepDiver:
             elif any(current_pattern.is_ancestor_of(mup) for mup in mups):
                 uncovered_flag = True
             else:
-                self.debugger.increment_node_visited()
+                if self.debugger:
+                    self.debugger.increment_node_visited()
                 coverage = self.dataset.checkCoverage(current_pattern)
                 uncovered_flag = coverage < self.threshold
 
@@ -38,14 +38,16 @@ class DeepDiver:
                     temp_pattern = temp_stack.pop()
                     parent_patterns = temp_pattern.gen_parents()
                     for parent in parent_patterns:
-                        self.debugger.increment_node_visited()
+                        if self.debugger:
+                            self.debugger.increment_node_visited()
                         parent_coverage = self.dataset.checkCoverage(parent)
                         if parent_coverage < self.threshold:
                             temp_stack.append(parent)
                             break
                 assert current_pattern not in mups  # Sanity (debug)
                 mups.add(temp_pattern)
-                self.debugger.increment_mups()
+                if self.debugger:
+                    self.debugger.increment_mups()
             else:
                 children = current_pattern.gen_children(self.dataset, rule1=True)
                 stack.extend(children)

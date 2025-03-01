@@ -9,8 +9,7 @@ class PatternBreaker:
         
         self.dataset = BasicDataSet(dataset_path, interestedIndexes)
         self.threshold = threshold
-        if debug:
-            self.debugger = Debugger()
+        self.debugger = Debugger() if debug else None
 
     def find_max_uncovered_pattern_set(self) -> List[Pattern]:
         if self.debugger:
@@ -47,11 +46,13 @@ class PatternBreaker:
                     continue
 
                 # Check coverage threshold
-                self.debugger.increment_node_visited()
+                if self.debugger:
+                    self.debugger.increment_node_visited()
                 if self.dataset.checkCoverage(current_pattern) < self.threshold:
                     assert current_pattern not in mups  # Sanity (debug)
                     mups.add(current_pattern)
-                    self.debugger.increment_mups()
+                    if self.debugger:
+                        self.debugger.increment_mups()
                 else:
                     # Expand the pattern by replacing positions after the right-most deterministic index
                     generated_children = current_pattern.gen_children(self.dataset,True) # Rule 1

@@ -8,8 +8,7 @@ class PatternCombiner:
         
         self.dataset = BasicDataSet(dataset_path, interestedIndexes)
         self.threshold = threshold
-        if debug:
-            self.debugger = Debugger()
+        self.debugger = Debugger() if debug else None
 
     def find_max_uncovered_pattern_set(self) -> List[Pattern]:
         if self.debugger:
@@ -24,7 +23,8 @@ class PatternCombiner:
         
         # Check coverage for each pattern
         for pattern in all_possible_deterministic_patterns:
-            self.debugger.increment_node_visited()
+            if self.debugger:
+                self.debugger.increment_node_visited()
             cnt = self.dataset.checkCoverage(pattern)
             if cnt < self.threshold:
                 count[pattern] = cnt
@@ -46,7 +46,8 @@ class PatternCombiner:
                     # Calculate the coverage of the parent pattern
                     # cov(parent) = sum(cov(child)), for example: cov(1xx) = cov(1x1) + cov(1x0)
                     sum_coverage = 0
-                    self.debugger.increment_node_visited()
+                    if self.debugger:
+                        self.debugger.increment_node_visited()
                     for child in children:
                         # if one of the children is not in count, then it is
                         # covered, so we'll add the threshold and be covered as well.
@@ -62,7 +63,8 @@ class PatternCombiner:
                 if len(list(filter(lambda x: x in nextCount, pattern.gen_parents()))) == 0:
                     assert pattern not in mups  # Sanity (debug)
                     mups.add(pattern)
-                    self.debugger.increment_mups()
+                    if self.debugger:
+                        self.debugger.increment_mups()
             
             # check whether nextCount is empty. If so, break.
             if(len(nextCount) == 0):
