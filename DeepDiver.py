@@ -24,7 +24,7 @@ class DeepDiver:
             if any(mup.is_ancestor_of(current_pattern) for mup in mups):
                 continue
             elif any(current_pattern.is_ancestor_of(mup) for mup in mups):
-                uncovered_flag = True
+                continue
             else:
                 if self.debugger:
                     self.debugger.increment_node_visited()
